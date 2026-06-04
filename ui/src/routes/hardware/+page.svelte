@@ -271,6 +271,47 @@
                     bind:value={$hardwareSettings.values['radar_timeout']}/>
             </label>
         </p>
+        <h2>LD2410 UART Radar</h2>
+        <p>
+            <label>
+                LD2410 UART RX pin (-1 to disable):<br />
+                <input
+                    type="number"
+                    step="1"
+                    min="-1"
+                    max="48"
+                    name="LD2410_RX_pin"
+                    placeholder={$hardwareSettings.defaults['LD2410_RX_pin']}
+                    bind:value={$hardwareSettings.values['LD2410_RX_pin']}/>
+            </label>
+        </p>
+        <p>
+            <label>
+                LD2410 UART TX pin (-1 to disable):<br />
+                <input
+                    type="number"
+                    step="1"
+                    min="-1"
+                    max="48"
+                    name="LD2410_TX_pin"
+                    placeholder={$hardwareSettings.defaults['LD2410_TX_pin']}
+                    bind:value={$hardwareSettings.values['LD2410_TX_pin']}/>
+            </label>
+        </p>
+        <h2>Occupancy</h2>
+        <p>
+            <label>
+                Occupancy delayed-off timeout (seconds):<br />
+                <input
+                    type="number"
+                    step="1"
+                    min="0"
+                    max="300"
+                    name="Occupancy_timeout"
+                    placeholder={$hardwareSettings.defaults['Occupancy_timeout']}
+                    bind:value={$hardwareSettings.values['Occupancy_timeout']}/>
+            </label>
+        </p>
         <h4>Switch One:</h4>
         <p>
             <label>

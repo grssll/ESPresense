@@ -8,10 +8,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build UI
+        run: |
+          cd ui
+          npm ci
+          npm run build
+          echo "=== Generated UI headers ==="
+          ls -la ../src/ui_*.h
+
       - name: Install PlatformIO
         run: pip install platformio
-      - name: Build ESP32
+
+      - name: Build ESP32-S3 CDC
         run: pio run -e esp32s3-cdc
+
       - name: Collect flash files
         run: |
           mkdir -p flash
@@ -20,9 +36,10 @@ jobs:
           cp .pio/build/esp32s3-cdc/bootloader.bin flash/
           find ~/.platformio -name "boot_app0.bin" -exec cp {} flash/ \;
           ls -la flash/
+
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: espresense-fork-esp32
+          name: espresense-fork-esp32s3
           path: flash/
           retention-days: 90
