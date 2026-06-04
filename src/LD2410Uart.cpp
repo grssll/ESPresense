@@ -20,7 +20,9 @@
 // =============================================================================
 
 #include "LD2410Uart.h"
-#include "main.h"   // roomsTopic, globals
+#include "globals.h"
+#include "defaults.h"
+#include <HeadlessWiFiSettings.h>
 #include "mqtt.h"   // pub(), sendSensorDiscovery(), sendBinarySensorDiscovery()
 #include <Arduino.h>
 

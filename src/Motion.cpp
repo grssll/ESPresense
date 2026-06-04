@@ -11,7 +11,9 @@
 // =============================================================================
 
 #include "Motion.h"
-#include "main.h"
+#include "globals.h"
+#include "defaults.h"
+#include <HeadlessWiFiSettings.h>
 #include "mqtt.h"
 #include <Arduino.h>
 

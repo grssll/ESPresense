@@ -18,7 +18,9 @@
 #include "Occupancy.h"
 #include "LD2410Uart.h"
 #include "Motion.h"     // Motion::pirState
-#include "main.h"
+#include "globals.h"
+#include "defaults.h"
+#include <HeadlessWiFiSettings.h>
 #include "mqtt.h"
 #include <Arduino.h>
 
