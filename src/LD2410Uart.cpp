@@ -243,9 +243,9 @@ static void readline(uint8_t b) {
 
 void ConnectToWifi() {
     // Register settings — appear on Hardware page in web UI
-    rxPin = HeadlessWiFiSettings.integer("LD2410_RX_pin", -1,
+    rxPin = HeadlessWiFiSettings.integer("LD2410_RX_pin", 44,
         "LD2410 UART RX pin (-1 to disable)");
-    txPin = HeadlessWiFiSettings.integer("LD2410_TX_pin", -1,
+    txPin = HeadlessWiFiSettings.integer("LD2410_TX_pin", 43,
         "LD2410 UART TX pin (-1 to disable)");
 }
 
