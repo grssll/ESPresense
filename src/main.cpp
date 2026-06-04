@@ -66,6 +66,8 @@ bool sendTelemetry(unsigned int totalSeen, unsigned int totalFpSeen, unsigned in
             && Updater::SendDiscovery()
             && GUI::SendDiscovery()
             && Motion::SendDiscovery()
+            && LD2410Uart::SendDiscovery()
+            && Occupancy::SendDiscovery()
             && Switch::SendDiscovery()
             && Button::SendDiscovery()
             && Enrollment::SendDiscovery()
@@ -205,6 +207,8 @@ void setupNetwork() {
     GUI::ConnectToWifi(updating);
 
     Motion::ConnectToWifi(updating);
+    LD2410Uart::ConnectToWifi();
+    Occupancy::ConnectToWifi();
     Switch::ConnectToWifi(updating);
     Button::ConnectToWifi(updating);
 
@@ -269,6 +273,8 @@ void setupNetwork() {
     Log.printf("Max Distance: %.2f\r\n", BleFingerprintCollection::maxDistance);
     GUI::SerialReport();
     Motion::SerialReport();
+    LD2410Uart::SerialReport();
+    Occupancy::SerialReport();
     Switch::SerialReport();
     Button::SerialReport();
 #ifdef SENSORS
@@ -634,6 +640,8 @@ void setup() {
     Updater::Setup();
     GUI::Setup(false);
     Motion::Setup();
+    LD2410Uart::Setup();
+    Occupancy::Setup();
     Switch::Setup();
     Button::Setup();
     Battery::Setup();
@@ -682,6 +690,8 @@ void loop() {
     }
     GUI::Loop();
     Motion::Loop();
+    LD2410Uart::Loop();
+    Occupancy::Loop();
     Switch::Loop();
     Button::Loop();
     HttpWebServer::Loop();
