@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #ifdef SENSORS
 
 namespace LD2410Uart {
