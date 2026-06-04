@@ -19,6 +19,8 @@
 #include "HttpReleaseUpdate.h"
 #include "HttpWebServer.h"
 #include "Motion.h"
+#include "LD2410Uart.h"
+#include "Occupancy.h"
 #include "Switch.h"
 #include "Button.h"
 #include "MultiNetwork.h"
