@@ -61,7 +61,7 @@ static bool isPinInverted(const String& modeStr) {
 // ---------------------------------------------------------------------------
 // ConnectToWifi
 // ---------------------------------------------------------------------------
-void ConnectToWifi() {
+void ConnectToWifi(bool updating) {
     pirPin     = HeadlessWiFiSettings.integer("pir_pin",   -1,  "PIR motion pin (-1=disable)");
     radarPin   = HeadlessWiFiSettings.integer("radar_pin", -1,  "Radar GPIO pin (-1=disable)");
 
@@ -164,6 +164,22 @@ bool SendDiscovery() {
         ok = ok && sendBinarySensorDiscovery("Motion", "motion", "motion");
 
     return ok;
+}
+
+} // namespace Motion
+
+// Upstream methods required by main.cpp
+namespace Motion {
+
+bool SendOnline() {
+    pub((roomsTopic + "/pir").c_str(),        0, 1, pirState        ? "ON" : "OFF");
+    pub((roomsTopic + "/radar_gpio").c_str(), 0, 1, radarGpioState  ? "ON" : "OFF");
+    pub((roomsTopic + "/motion").c_str(),     0, 1, (pirState || radarGpioState) ? "ON" : "OFF");
+    return true;
+}
+
+bool Command(String& command, String& payload) {
+    return false; // no motion-specific MQTT commands in this fork
 }
 
 } // namespace Motion

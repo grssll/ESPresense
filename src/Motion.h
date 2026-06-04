@@ -1,30 +1,19 @@
 #pragma once
-// =============================================================================
-// Motion.h
-// ESPresense fork — PIR + GPIO radar
-//
-// CHANGES FROM UPSTREAM:
-//   • pirState and radarGpioState declared extern so Occupancy.cpp can read them
-//   • All other interface unchanged
-// =============================================================================
+#include <Arduino.h>
 
 namespace Motion {
 
-    // -------------------------------------------------------------------------
-    // Live state — exposed for Occupancy module
-    // -------------------------------------------------------------------------
-    extern bool pirState;         // true while PIR reports motion
-    extern bool radarGpioState;   // true while GPIO radar pin reports presence
-                                  // (if GPIO radar is also wired; independent of
-                                  //  LD2410Uart UART radar)
+    // Exposed for Occupancy module
+    extern bool pirState;
+    extern bool radarGpioState;
 
-    // -------------------------------------------------------------------------
-    // Standard ESPresense interface
-    // -------------------------------------------------------------------------
-    void ConnectToWifi();
+    // Full upstream interface (all methods main.cpp expects)
+    void ConnectToWifi(bool updating);
     void Setup();
     void SerialReport();
     void Loop();
     bool SendDiscovery();
+    bool SendOnline();
+    bool Command(String& command, String& payload);
 
-} // namespace Motion
+}
