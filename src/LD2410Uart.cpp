@@ -265,7 +265,7 @@ void Setup() {
     setConfigMode(false);
 
     initialized = true;
-    Serial.printf("LD2410Uart: UART2 RX=%d TX=%d @ 256000 baud\n", rxPin, txPin);
+    Serial.printf("LD2410Uart: UART1 RX=%d TX=%d @ 256000 baud\n", rxPin, txPin);
 }
 
 void SerialReport() {
@@ -285,6 +285,17 @@ void Loop() {
 
     // Drain whatever the sensor sent since last loop tick
     int avail = LD2410Serial.available();
+
+    // Debug: log byte count every 5 seconds
+    static unsigned long lastDebug = 0;
+    static unsigned long totalBytes = 0;
+    totalBytes += avail;
+    if (millis() - lastDebug > 5000) {
+        Serial.printf("LD2410Uart: %lu bytes received in last 5s\n", totalBytes);
+        totalBytes = 0;
+        lastDebug = millis();
+    }
+
     while (avail-- > 0) {
         readline(LD2410Serial.read());
     }
