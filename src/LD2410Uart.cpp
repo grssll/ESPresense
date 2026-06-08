@@ -46,7 +46,7 @@ uint16_t detectionDistance= 0;
 // ---------------------------------------------------------------------------
 static int  rxPin       = -1;  // -1 = disabled
 static int  txPin       = -1;
-static HardwareSerial LD2410Serial(0);  // UART1 — works on all ESP32 variants
+// Using Serial0 (UART0) — native pins GPIO43/44 on ESP32-S3 CDC  // UART1 — works on all ESP32 variants
 
 // ---------------------------------------------------------------------------
 // Frame parsing constants (from ESPHome ld2410.cpp)
@@ -114,11 +114,11 @@ static uint16_t le16(uint8_t lo, uint8_t hi) {
 // ---------------------------------------------------------------------------
 static void sendCommand(uint8_t cmd, const uint8_t* val = nullptr, uint8_t valLen = 0) {
     if (!initialized) return;
-    LD2410Serial.write(CMD_FRAME_HEADER, 4);
+    Serial0.write(CMD_FRAME_HEADER, 4);
     uint8_t lenBuf[4] = {(uint8_t)(2 + valLen), 0x00, cmd, 0x00};
-    LD2410Serial.write(lenBuf, 4);
-    if (val && valLen) LD2410Serial.write(val, valLen);
-    LD2410Serial.write(CMD_FRAME_FOOTER, 4);
+    Serial0.write(lenBuf, 4);
+    if (val && valLen) Serial0.write(val, valLen);
+    Serial0.write(CMD_FRAME_FOOTER, 4);
     if (cmd != CMD_ENABLE_CONF && cmd != CMD_DISABLE_CONF) delay(50);
 }
 
@@ -255,10 +255,11 @@ void Setup() {
         return;
     }
 
-    // On ESP32-S3 with USB CDC, UART0 pins (43/44) are free since Serial
-    // uses native USB. End any default UART0 claim before reconfiguring.
+    // On ESP32-S3 CDC, Serial0 is UART0 on GPIO43/44 (its native pins).
+    // End default config, then reconfigure for LD2410 at 256000 baud.
     Serial0.end();
-    LD2410Serial.begin(256000, SERIAL_8N1, rxPin, txPin);
+    delay(10);
+    Serial0.begin(256000, SERIAL_8N1, rxPin, txPin);
     delay(100); // let the sensor settle after power-up
 
     // Ensure normal (non-engineering) mode so the basic data frame streams
@@ -267,7 +268,7 @@ void Setup() {
     setConfigMode(false);
 
     initialized = true;
-    Serial.printf("LD2410Uart: UART1 RX=%d TX=%d @ 256000 baud\n", rxPin, txPin);
+    Serial.printf("LD2410Uart: UART0/Serial0 RX=%d TX=%d @ 256000 baud\n", rxPin, txPin);
 }
 
 void SerialReport() {
@@ -286,7 +287,7 @@ void Loop() {
     if (!initialized) return;
 
     // Drain whatever the sensor sent since last loop tick
-    int avail = LD2410Serial.available();
+    int avail = Serial0.available();
 
     // Debug: log byte count every 5 seconds
     static unsigned long lastDebug = 0;
@@ -299,7 +300,7 @@ void Loop() {
     }
 
     while (avail-- > 0) {
-        readline(LD2410Serial.read());
+        readline(Serial0.read());
     }
 }
 
