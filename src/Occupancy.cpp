@@ -97,7 +97,7 @@ void Loop() {
 // SendDiscovery — HA MQTT discovery for the occupancy binary sensor
 // ---------------------------------------------------------------------------
 bool SendDiscovery() {
-    bool ok = sendBinarySensorDiscovery("Occupancy", "occupancy", "occupancy");
+    bool ok = sendBinarySensorDiscovery("Occupancy", EC_NONE, "occupancy");
     if (ok) discoveryReady = true;
     return ok;
 }

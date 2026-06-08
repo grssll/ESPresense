@@ -156,14 +156,14 @@ bool SendDiscovery() {
     bool ok = true;
 
     if (pirPin >= 0)
-        ok = ok && sendBinarySensorDiscovery("PIR", "pir", "motion");
+        ok = ok && sendBinarySensorDiscovery("Pir", EC_NONE, "motion");
 
     if (radarPin >= 0)
-        ok = ok && sendBinarySensorDiscovery("Radar GPIO", "radar_gpio", "motion");
+        ok = ok && sendBinarySensorDiscovery("Radar Gpio", EC_NONE, "motion");
 
     // Combined motion always present if either sensor is wired
     if (pirPin >= 0 || radarPin >= 0)
-        ok = ok && sendBinarySensorDiscovery("Motion", "motion", "motion");
+        ok = ok && sendBinarySensorDiscovery("Motion", EC_NONE, "motion");
 
     return ok;
 }

@@ -291,20 +291,20 @@ void Loop() {
 }
 
 bool SendDiscovery() {
-    if (!initialized) return true; // nothing to announce
+    if (!initialized) return true;
 
-    // Binary sensors
-    bool ok = sendBinarySensorDiscovery("LD2410 Presence", "radar", "motion")
-           && sendBinarySensorDiscovery("LD2410 Moving",   "radar_moving",  "motion")
-           && sendBinarySensorDiscovery("LD2410 Still",    "radar_still",   "motion");
+    // Names must slugify to match our MQTT topics
+    // e.g. "Radar" -> slug "radar" -> state topic "~/radar"
+    bool ok = sendBinarySensorDiscovery("Radar", EC_NONE, "motion")
+           && sendBinarySensorDiscovery("Radar Moving", EC_NONE, "motion")
+           && sendBinarySensorDiscovery("Radar Still", EC_NONE, "motion");
 
-    // Numeric sensors
     ok = ok
-      && sendSensorDiscovery("LD2410 Moving Distance", "radar_moving_distance", EC_NONE, "distance", "cm")
-      && sendSensorDiscovery("LD2410 Moving Energy",   "radar_moving_energy",   EC_NONE, "", "")
-      && sendSensorDiscovery("LD2410 Still Distance",  "radar_still_distance",  EC_NONE, "distance", "cm")
-      && sendSensorDiscovery("LD2410 Still Energy",    "radar_still_energy",    EC_NONE, "", "")
-      && sendSensorDiscovery("LD2410 Distance",        "radar_distance",        EC_NONE, "distance", "cm");
+      && sendSensorDiscovery("Radar Moving Distance", EC_NONE, "distance", "cm")
+      && sendSensorDiscovery("Radar Moving Energy", EC_NONE)
+      && sendSensorDiscovery("Radar Still Distance", EC_NONE, "distance", "cm")
+      && sendSensorDiscovery("Radar Still Energy", EC_NONE)
+      && sendSensorDiscovery("Radar Distance", EC_NONE, "distance", "cm");
 
     return ok;
 }
