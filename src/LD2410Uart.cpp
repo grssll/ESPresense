@@ -46,7 +46,7 @@ uint16_t detectionDistance= 0;
 // ---------------------------------------------------------------------------
 static int  rxPin       = -1;  // -1 = disabled
 static int  txPin       = -1;
-static HardwareSerial LD2410Serial(1);  // UART1 — works on all ESP32 variants
+static HardwareSerial LD2410Serial(0);  // UART1 — works on all ESP32 variants
 
 // ---------------------------------------------------------------------------
 // Frame parsing constants (from ESPHome ld2410.cpp)
@@ -255,7 +255,9 @@ void Setup() {
         return;
     }
 
-    // Bring up UART2 at LD2410's default baud rate
+    // On ESP32-S3 with USB CDC, UART0 pins (43/44) are free since Serial
+    // uses native USB. End any default UART0 claim before reconfiguring.
+    Serial0.end();
     LD2410Serial.begin(256000, SERIAL_8N1, rxPin, txPin);
     delay(100); // let the sensor settle after power-up
 
