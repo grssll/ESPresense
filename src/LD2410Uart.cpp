@@ -46,7 +46,7 @@ uint16_t detectionDistance= 0;
 // ---------------------------------------------------------------------------
 static int  rxPin       = -1;  // -1 = disabled
 static int  txPin       = -1;
-static int  uartNum     =  2;  // Serial2 on ESP32dev (UART2, GPIO 16/17)
+static HardwareSerial LD2410Serial(1);  // UART1 — works on all ESP32 variants
 
 // ---------------------------------------------------------------------------
 // Frame parsing constants (from ESPHome ld2410.cpp)
@@ -114,11 +114,11 @@ static uint16_t le16(uint8_t lo, uint8_t hi) {
 // ---------------------------------------------------------------------------
 static void sendCommand(uint8_t cmd, const uint8_t* val = nullptr, uint8_t valLen = 0) {
     if (!initialized) return;
-    Serial2.write(CMD_FRAME_HEADER, 4);
+    LD2410Serial.write(CMD_FRAME_HEADER, 4);
     uint8_t lenBuf[4] = {(uint8_t)(2 + valLen), 0x00, cmd, 0x00};
-    Serial2.write(lenBuf, 4);
-    if (val && valLen) Serial2.write(val, valLen);
-    Serial2.write(CMD_FRAME_FOOTER, 4);
+    LD2410Serial.write(lenBuf, 4);
+    if (val && valLen) LD2410Serial.write(val, valLen);
+    LD2410Serial.write(CMD_FRAME_FOOTER, 4);
     if (cmd != CMD_ENABLE_CONF && cmd != CMD_DISABLE_CONF) delay(50);
 }
 
@@ -256,7 +256,7 @@ void Setup() {
     }
 
     // Bring up UART2 at LD2410's default baud rate
-    Serial2.begin(256000, SERIAL_8N1, rxPin, txPin);
+    LD2410Serial.begin(256000, SERIAL_8N1, rxPin, txPin);
     delay(100); // let the sensor settle after power-up
 
     // Ensure normal (non-engineering) mode so the basic data frame streams
@@ -284,9 +284,9 @@ void Loop() {
     if (!initialized) return;
 
     // Drain whatever the sensor sent since last loop tick
-    int avail = Serial2.available();
+    int avail = LD2410Serial.available();
     while (avail-- > 0) {
-        readline(Serial2.read());
+        readline(LD2410Serial.read());
     }
 }
 
