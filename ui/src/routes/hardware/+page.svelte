@@ -298,6 +298,20 @@
                     bind:value={$hardwareSettings.values['LD2410_TX_pin']}/>
             </label>
         </p>
+        <h2>Buzzer</h2>
+        <p>
+            <label>
+                Buzzer pin (-1 to disable):<br />
+                <input
+                    type="number"
+                    step="1"
+                    min="-1"
+                    max="48"
+                    name="buzzer_pin"
+                    placeholder={$hardwareSettings.defaults['buzzer_pin']}
+                    bind:value={$hardwareSettings.values['buzzer_pin']}/>
+            </label>
+        </p>
         <h2>Occupancy</h2>
         <p>
             <label>

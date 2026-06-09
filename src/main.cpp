@@ -209,6 +209,7 @@ void setupNetwork() {
     Motion::ConnectToWifi(updating);
     LD2410Uart::ConnectToWifi();
     Occupancy::ConnectToWifi();
+    Buzzer::ConnectToWifi();
     Switch::ConnectToWifi(updating);
     Button::ConnectToWifi(updating);
 
@@ -275,6 +276,7 @@ void setupNetwork() {
     Motion::SerialReport();
     LD2410Uart::SerialReport();
     Occupancy::SerialReport();
+    Buzzer::SerialReport();
     Switch::SerialReport();
     Button::SerialReport();
 #ifdef SENSORS
@@ -379,6 +381,8 @@ void onMqttMessage(const char *topic, const char *payload) {
             spurt("/" + command, pay);
         else if (command == "name")
             spurt("/room", pay.isEmpty() ? ESPMAC : pay);
+        else if (Buzzer::Command(command, pay))
+            ;
         else if (GUI::Command(command, pay))
             ;
         else if (Motion::Command(command, pay))
@@ -642,6 +646,7 @@ void setup() {
     Motion::Setup();
     LD2410Uart::Setup();
     Occupancy::Setup();
+    Buzzer::Setup();
     Switch::Setup();
     Button::Setup();
     Battery::Setup();
@@ -692,6 +697,7 @@ void loop() {
     Motion::Loop();
     LD2410Uart::Loop();
     Occupancy::Loop();
+    Buzzer::Loop();
     Switch::Loop();
     Button::Loop();
     HttpWebServer::Loop();

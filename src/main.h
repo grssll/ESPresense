@@ -21,6 +21,7 @@
 #include "Motion.h"
 #include "LD2410Uart.h"
 #include "Occupancy.h"
+#include "Buzzer.h"
 #include "Switch.h"
 #include "Button.h"
 #include "MultiNetwork.h"
