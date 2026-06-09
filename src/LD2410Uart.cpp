@@ -46,7 +46,10 @@ uint16_t detectionDistance= 0;
 // ---------------------------------------------------------------------------
 static int  rxPin       = -1;  // -1 = disabled
 static int  txPin       = -1;
-// Using Serial0 (UART0) — native pins GPIO43/44 on ESP32-S3 CDC  // UART1 — works on all ESP32 variants
+#include "driver/uart.h"
+#include "driver/gpio.h"
+static const uart_port_t LD2410_UART = UART_NUM_1;
+static const int UART_BUF_SIZE = 512;  // UART1 — works on all ESP32 variants
 
 // ---------------------------------------------------------------------------
 // Frame parsing constants (from ESPHome ld2410.cpp)
@@ -114,11 +117,11 @@ static uint16_t le16(uint8_t lo, uint8_t hi) {
 // ---------------------------------------------------------------------------
 static void sendCommand(uint8_t cmd, const uint8_t* val = nullptr, uint8_t valLen = 0) {
     if (!initialized) return;
-    Serial0.write(CMD_FRAME_HEADER, 4);
+    uart_write_bytes(LD2410_UART, CMD_FRAME_HEADER, 4);
     uint8_t lenBuf[4] = {(uint8_t)(2 + valLen), 0x00, cmd, 0x00};
-    Serial0.write(lenBuf, 4);
-    if (val && valLen) Serial0.write(val, valLen);
-    Serial0.write(CMD_FRAME_FOOTER, 4);
+    uart_write_bytes(LD2410_UART, lenBuf, 4);
+    if (val && valLen) uart_write_bytes(LD2410_UART, val, valLen);
+    uart_write_bytes(LD2410_UART, CMD_FRAME_FOOTER, 4);
     if (cmd != CMD_ENABLE_CONF && cmd != CMD_DISABLE_CONF) delay(50);
 }
 
@@ -255,11 +258,25 @@ void Setup() {
         return;
     }
 
-    // On ESP32-S3 CDC, Serial0 is UART0 on GPIO43/44 (its native pins).
-    // End default config, then reconfigure for LD2410 at 256000 baud.
-    Serial0.end();
-    delay(10);
-    Serial0.begin(256000, SERIAL_8N1, rxPin, txPin);
+    // Use ESP-IDF UART driver directly — bypasses Arduino HardwareSerial
+    // which has issues with GPIO43/44 on ESP32-S3 CDC builds.
+    // First detach UART0 from these pins if it's claiming them
+    uart_driver_delete(UART_NUM_0);
+    gpio_reset_pin((gpio_num_t)rxPin);
+    gpio_reset_pin((gpio_num_t)txPin);
+
+    uart_config_t uart_config = {
+        .baud_rate = 256000,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
+        .rx_flow_ctrl_thresh = 0,
+        .source_clk = UART_SCLK_DEFAULT,
+    };
+    uart_param_config(LD2410_UART, &uart_config);
+    uart_set_pin(LD2410_UART, txPin, rxPin, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    uart_driver_install(LD2410_UART, UART_BUF_SIZE * 2, 0, 0, NULL, 0);
     delay(100); // let the sensor settle after power-up
 
     // Ensure normal (non-engineering) mode so the basic data frame streams
@@ -268,7 +285,7 @@ void Setup() {
     setConfigMode(false);
 
     initialized = true;
-    Serial.printf("LD2410Uart: UART0/Serial0 RX=%d TX=%d @ 256000 baud\n", rxPin, txPin);
+    Serial.printf("LD2410Uart: ESP-IDF UART1 RX=%d TX=%d @ 256000 baud\n", rxPin, txPin);
 }
 
 void SerialReport() {
@@ -286,21 +303,22 @@ void SerialReport() {
 void Loop() {
     if (!initialized) return;
 
-    // Drain whatever the sensor sent since last loop tick
-    int avail = Serial0.available();
+    // Read from ESP-IDF UART driver
+    uint8_t rxBuf[128];
+    int len = uart_read_bytes(LD2410_UART, rxBuf, sizeof(rxBuf), 0);
 
     // Debug: log byte count every 5 seconds
     static unsigned long lastDebug = 0;
     static unsigned long totalBytes = 0;
-    totalBytes += avail;
+    if (len > 0) totalBytes += len;
     if (millis() - lastDebug > 5000) {
         Serial.printf("LD2410Uart: %lu bytes received in last 5s\n", totalBytes);
         totalBytes = 0;
         lastDebug = millis();
     }
 
-    while (avail-- > 0) {
-        readline(Serial0.read());
+    for (int i = 0; i < len; i++) {
+        readline(rxBuf[i]);
     }
 }
 
