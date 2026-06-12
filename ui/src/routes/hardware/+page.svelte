@@ -298,6 +298,80 @@
                     bind:value={$hardwareSettings.values['LD2410_TX_pin']}/>
             </label>
         </p>
+        <h2>Occupancy LED &amp; Sound</h2>
+        <p>
+            <label class="flex items-center space-x-2">
+                <input type="checkbox" name="occ_led_enable" bind:checked={$hardwareSettings.values['occ_led_enable']}/>
+                <span>Drive LED 1 from occupancy state</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                Occupied color:<br />
+                <input type="color"
+                    value={'#' + ($hardwareSettings.values['occ_on_color'] || '0000FF')}
+                    on:input={(e) => $hardwareSettings.values['occ_on_color'] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                <input type="hidden" name="occ_on_color" value={$hardwareSettings.values['occ_on_color']}/>
+            </label>
+        </p>
+        <p>
+            <label>
+                Clear color:<br />
+                <input type="color"
+                    value={'#' + ($hardwareSettings.values['occ_off_color'] || 'FF0000')}
+                    on:input={(e) => $hardwareSettings.values['occ_off_color'] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                <input type="hidden" name="occ_off_color" value={$hardwareSettings.values['occ_off_color']}/>
+            </label>
+        </p>
+        <p>
+            <label>
+                LED brightness (0-255):<br />
+                <input type="number" step="1" min="0" max="255"
+                    name="occ_led_brightness"
+                    placeholder={$hardwareSettings.defaults['occ_led_brightness']}
+                    bind:value={$hardwareSettings.values['occ_led_brightness']}/>
+            </label>
+        </p>
+        <p>
+            <label class="flex items-center space-x-2">
+                <input type="checkbox" name="occ_buzzer_enable" bind:checked={$hardwareSettings.values['occ_buzzer_enable']}/>
+                <span>Play melody on occupancy change</span>
+            </label>
+        </p>
+        <p>
+            <label>
+                Melody when occupied:<br />
+                <select name="occ_on_melody" bind:value={$hardwareSettings.values['occ_on_melody']}>
+                    <option value="0">None</option>
+                    <option value="1">chirp</option>
+                    <option value="2">descend</option>
+                    <option value="3">welcome</option>
+                    <option value="4">goodbye</option>
+                    <option value="5">alert</option>
+                    <option value="6">success</option>
+                    <option value="7">error</option>
+                    <option value="8">doorbell</option>
+                    <option value="9">beep</option>
+                </select>
+            </label>
+        </p>
+        <p>
+            <label>
+                Melody when clear:<br />
+                <select name="occ_off_melody" bind:value={$hardwareSettings.values['occ_off_melody']}>
+                    <option value="0">None</option>
+                    <option value="1">chirp</option>
+                    <option value="2">descend</option>
+                    <option value="3">welcome</option>
+                    <option value="4">goodbye</option>
+                    <option value="5">alert</option>
+                    <option value="6">success</option>
+                    <option value="7">error</option>
+                    <option value="8">doorbell</option>
+                    <option value="9">beep</option>
+                </select>
+            </label>
+        </p>
         <h2>Buzzer</h2>
         <p>
             <label>

@@ -18,6 +18,9 @@
 #include "Occupancy.h"
 #include "LD2410Uart.h"
 #include "Motion.h"     // Motion::pirState
+#include "LEDs.h"
+#include "Buzzer.h"
+#include "string_utils.h"
 #include "globals.h"
 #include "defaults.h"
 #include <HeadlessWiFiSettings.h>
@@ -25,6 +28,33 @@
 #include <Arduino.h>
 
 namespace Occupancy {
+
+// Configurable behavior (set in ConnectToWifi)
+static uint8_t onR = 0,   onG = 0,   onB = 255;   // occupied color (blue)
+static uint8_t offR = 255, offG = 0, offB = 0;     // clear color (red)
+static int     ledBrightness = 128;
+static int     onMelodyIdx = 0;   // 0 = None
+static int     offMelodyIdx = 0;
+static bool    ledEnabled = false;
+static bool    buzzerEnabled = false;
+
+// Melody preset names — index 0 is "None"
+static const char* MELODY_NAMES[] = {
+    "", "chirp", "descend", "welcome", "goodbye",
+    "alert", "success", "error", "doorbell", "beep"
+};
+static const int MELODY_COUNT = 10;
+
+// Parse "RRGGBB" hex string into r,g,b
+static void parseHexColor(const String& hex, uint8_t& r, uint8_t& g, uint8_t& b) {
+    String h = hex;
+    if (h.startsWith("#")) h = h.substring(1);
+    if (h.length() != 6) return;
+    long val = strtol(h.c_str(), nullptr, 16);
+    r = (val >> 16) & 0xFF;
+    g = (val >> 8) & 0xFF;
+    b = val & 0xFF;
+}
 
 // ---------------------------------------------------------------------------
 // Public state
@@ -47,6 +77,33 @@ void ConnectToWifi() {
         "Occupancy_timeout", 15,
         "Occupancy delayed-off (seconds) after last detection");
     delayedOffMs = (unsigned long)timeoutSec * 1000UL;
+
+    // --- LED behavior ---
+    ledEnabled = HeadlessWiFiSettings.checkbox(
+        "occ_led_enable", false, "Drive LED 1 from occupancy state");
+
+    String onHex = HeadlessWiFiSettings.string(
+        "occ_on_color", "0000FF", "Occupied color (hex RRGGBB)");
+    String offHex = HeadlessWiFiSettings.string(
+        "occ_off_color", "FF0000", "Clear color (hex RRGGBB)");
+    parseHexColor(onHex, onR, onG, onB);
+    parseHexColor(offHex, offR, offG, offB);
+
+    ledBrightness = HeadlessWiFiSettings.integer(
+        "occ_led_brightness", 0, 255, 128, "Occupancy LED brightness (0-255)");
+
+    // --- Buzzer behavior ---
+    buzzerEnabled = HeadlessWiFiSettings.checkbox(
+        "occ_buzzer_enable", false, "Play melody on occupancy change");
+
+    std::vector<String> melodies = {
+        "None", "chirp", "descend", "welcome", "goodbye",
+        "alert", "success", "error", "doorbell", "beep"
+    };
+    onMelodyIdx = HeadlessWiFiSettings.dropdown(
+        "occ_on_melody", melodies, 0, "Melody when occupied");
+    offMelodyIdx = HeadlessWiFiSettings.dropdown(
+        "occ_off_melody", melodies, 0, "Melody when clear");
 }
 
 // ---------------------------------------------------------------------------
@@ -82,6 +139,16 @@ void Loop() {
             occupied = true;
             pub((roomsTopic + "/occupancy").c_str(), 0, 1, "ON");
             lastPublished = true;
+
+            if (ledEnabled) {
+                String cmd = "led_1";
+                String pay = Sprintf(
+                    "{\"state\":\"ON\",\"brightness\":%d,\"color\":{\"r\":%d,\"g\":%d,\"b\":%d}}",
+                    ledBrightness, onR, onG, onB);
+                LEDs::Command(cmd, pay);
+            }
+            if (buzzerEnabled && onMelodyIdx > 0)
+                Buzzer::Play(MELODY_NAMES[onMelodyIdx]);
         }
     } else {
         // If no detection: wait for delayed_off to expire before clearing
@@ -89,6 +156,16 @@ void Loop() {
             occupied = false;
             pub((roomsTopic + "/occupancy").c_str(), 0, 1, "OFF");
             lastPublished = false;
+
+            if (ledEnabled) {
+                String cmd = "led_1";
+                String pay = Sprintf(
+                    "{\"state\":\"ON\",\"brightness\":%d,\"color\":{\"r\":%d,\"g\":%d,\"b\":%d}}",
+                    ledBrightness, offR, offG, offB);
+                LEDs::Command(cmd, pay);
+            }
+            if (buzzerEnabled && offMelodyIdx > 0)
+                Buzzer::Play(MELODY_NAMES[offMelodyIdx]);
         }
     }
 }
