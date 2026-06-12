@@ -310,7 +310,7 @@
                 Occupied color:<br />
                 <input type="color"
                     value={'#' + ($hardwareSettings.values['occ_on_color'] || '0000FF')}
-                    on:input={(e) => $hardwareSettings.values['occ_on_color'] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                    oninput={(e) => $hardwareSettings.values["occ_on_color"] = e.currentTarget.value.slice(1).toUpperCase()}/>
                 <input type="hidden" name="occ_on_color" value={$hardwareSettings.values['occ_on_color']}/>
             </label>
         </p>
@@ -319,7 +319,7 @@
                 Clear color:<br />
                 <input type="color"
                     value={'#' + ($hardwareSettings.values['occ_off_color'] || 'FF0000')}
-                    on:input={(e) => $hardwareSettings.values['occ_off_color'] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                    oninput={(e) => $hardwareSettings.values["occ_off_color"] = e.currentTarget.value.slice(1).toUpperCase()}/>
                 <input type="hidden" name="occ_off_color" value={$hardwareSettings.values['occ_off_color']}/>
             </label>
         </p>
