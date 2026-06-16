@@ -308,18 +308,28 @@
         <p>
             <label>
                 Occupied color:<br />
-                <input type="color"
-                    value={'#' + ($hardwareSettings.values['occ_on_color'] || '0000FF')}
-                    oninput={(e) => $hardwareSettings.values["occ_on_color"] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                    <input type="color"
+                        style="width:60px;height:36px;padding:2px;cursor:pointer;"
+                        value={'#' + ($hardwareSettings.values['occ_on_color'] || '0000FF')}
+                        oninput={(e) => $hardwareSettings.values["occ_on_color"] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                    <span style="display:inline-block;width:80px;height:32px;border-radius:4px;border:1px solid #666;background:{'#' + ($hardwareSettings.values['occ_on_color'] || '0000FF')};"></span>
+                    <span style="font-family:monospace;font-size:0.85em;">#{$hardwareSettings.values['occ_on_color'] || '0000FF'}</span>
+                </span>
                 <input type="hidden" name="occ_on_color" value={$hardwareSettings.values['occ_on_color']}/>
             </label>
         </p>
         <p>
             <label>
                 Clear color:<br />
-                <input type="color"
-                    value={'#' + ($hardwareSettings.values['occ_off_color'] || 'FF0000')}
-                    oninput={(e) => $hardwareSettings.values["occ_off_color"] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                <span style="display:inline-flex;align-items:center;gap:8px;">
+                    <input type="color"
+                        style="width:60px;height:36px;padding:2px;cursor:pointer;"
+                        value={'#' + ($hardwareSettings.values['occ_off_color'] || 'FF0000')}
+                        oninput={(e) => $hardwareSettings.values["occ_off_color"] = e.currentTarget.value.slice(1).toUpperCase()}/>
+                    <span style="display:inline-block;width:80px;height:32px;border-radius:4px;border:1px solid #666;background:{'#' + ($hardwareSettings.values['occ_off_color'] || 'FF0000')};"></span>
+                    <span style="font-family:monospace;font-size:0.85em;">#{$hardwareSettings.values['occ_off_color'] || 'FF0000'}</span>
+                </span>
                 <input type="hidden" name="occ_off_color" value={$hardwareSettings.values['occ_off_color']}/>
             </label>
         </p>
